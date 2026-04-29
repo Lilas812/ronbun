@@ -6,7 +6,7 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
 \usepackage{tikz}
-\usetikzlibrary{calc}
+\usetikzlibrary{calc,arrows.meta}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepackage{subcaption}
@@ -289,133 +289,219 @@ $\mathbb{E}[S_n]$ を平均，$\mathrm{Var}[S_n]$ を分散とすると，中心
 
 \subsection{相関付きランダムウォークの定義}
 
+\begin{remark}
+本節以降，$p, q$ は §1 の左進確率・右進確率とは異なり，
+相関付きランダムウォークの持続パラメータを表す（後述）。
+\end{remark}
+
 通常のランダムウォークでは各ステップが独立であるが，
-\textbf{相関付きランダムウォーク}（correlated random walk）では
-直前の移動方向が次のステップに影響する。
+\textbf{相関付きランダムウォーク}（correlated random walk, CRW）では
+直前の移動方向が次のステップの確率に影響する。
 
 \begin{definition}[相関付きランダムウォーク]
-パラメータ $a \in (0,1)$，$b = 1-a$ とする。
-ウォーカーの各ステップは次の遷移確率に従う：
-\[
-  P(\text{左} \to \text{左}) = a, \quad
-  P(\text{左} \to \text{右}) = b, \quad
-  P(\text{右} \to \text{右}) = a, \quad
-  P(\text{右} \to \text{左}) = b.
-\]
-すなわち，直前と\textbf{同じ方向}に進む確率が $a$，
-\textbf{逆方向}に進む確率が $b$ である。
+パラメータ $p, q \in (0,1)$ を固定する。
+各ステップの条件付き確率を
+\begin{align*}
+  P(\text{左} \mid \text{直前：左}) &= p, \quad &
+  P(\text{右} \mid \text{直前：左}) &= 1-p, \\
+  P(\text{左} \mid \text{直前：右}) &= 1-q, \quad &
+  P(\text{右} \mid \text{直前：右}) &= q
+\end{align*}
+で定める。$p$ を左持続確率，$q$ を右持続確率とよぶ。
 このとき定まる位置過程 $(\tilde{S}_n)_{n \geq 0}$ を
 \textbf{相関付きランダムウォーク}という。
 \end{definition}
 
-\begin{remark}
-$a > 1/2$ のとき同方向への持続性が強く（持続的ウォーク），
-$a < 1/2$ のとき反転しやすくなり（反持続的ウォーク），
-$a = 1/2$ のとき通常のランダムウォークに一致する。
+\begin{remark}[特殊例]
+\begin{itemize}
+  \item $p = q$：\textbf{時間発展対称な CRW}。左右の持続確率が等しい。
+  \item $p + q = 1$：各ステップが独立となり，通常のランダムウォークに帰着する。
+  \item $p = q = 1/2$：対称ランダムウォークに帰着する。
+\end{itemize}
 \end{remark}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[->,>=Stealth,thick,node distance=4cm]
+  \node[circle,draw,minimum size=1.2cm] (L) {$L$};
+  \node[circle,draw,minimum size=1.2cm,right of=L] (R) {$R$};
+  \draw (L) to[bend left=25] node[above] {$c = 1-p$} (R);
+  \draw (R) to[bend left=25] node[below] {$b = 1-q$} (L);
+  \draw (L) to[out=130,in=50,looseness=5] node[above] {$a = p$} (L);
+  \draw (R) to[out=130,in=50,looseness=5] node[above] {$d = q$} (R);
+\end{tikzpicture}
+\caption{相関付きランダムウォークの状態遷移図（$L$：左向き，$R$：右向き）}
+\label{fig:crw_states}
+\end{figure}
 
 \subsubsection*{行列による定式化}
 
-内部状態（向き）を $\{-, +\}$（左・右）とする 2 成分ベクトルで記述すると，
-相関付きランダムウォークは $2 \times 2$ 行列で表現できる。
+内部状態（向き）を
+\[
+  L = \begin{pmatrix}1\\0\end{pmatrix} \text{（左向き）}, \qquad
+  R = \begin{pmatrix}0\\1\end{pmatrix} \text{（右向き）}
+\]
+として，相関付きランダムウォークを $2 \times 2$ 行列で定式化する。
 
-\begin{definition}[推移行列]
-右移動行列 $P_R$（位置 $x-1$ から $x$ への右向き寄与）と
-左移動行列 $P_L$（位置 $x+1$ から $x$ への左向き寄与）を
+\begin{definition}[転置推移確率行列]
 \[
-  P_R = \begin{pmatrix} 0 & 0 \\ b & a \end{pmatrix},
-  \qquad
-  P_L = \begin{pmatrix} a & b \\ 0 & 0 \end{pmatrix}
+  A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}, \qquad
+  a + c = b + d = 1, \quad 0 < a,\, d < 1
 \]
-と定め，\textbf{推移行列}を
+を\textbf{転置推移確率行列}とよぶ。
+$p, q$ との対応は
 \[
-  A = P_R + P_L = \begin{pmatrix} a & b \\ b & a \end{pmatrix}
+  a = p, \quad b = 1-q, \quad c = 1-p, \quad d = q
 \]
-とする。
+であり，$AL = aL + cR$，$AR = bL + dR$ が成り立つ。
 \end{definition}
 
 \begin{definition}[確率ベクトル]
-時刻 $n$，位置 $x$ における確率ベクトルを
+時刻 $n$，位置 $x$ における\textbf{確率ベクトル}を
 \[
-  \Psi_n(x) = \begin{pmatrix} \Psi_n^{-}(x) \\ \Psi_n^{+}(x) \end{pmatrix}
+  \Psi_n(x) = \begin{pmatrix} \Psi_n^L(x) \\ \Psi_n^R(x) \end{pmatrix}
 \]
-で表す。$\Psi_n^{-}(x)$ は時刻 $n$ に左向きで位置 $x$ にいる確率，
-$\Psi_n^{+}(x)$ は右向きで位置 $x$ にいる確率である。
-初期状態は $\Psi_0(0) = \begin{pmatrix} \alpha \\ \beta \end{pmatrix}$
-（$\alpha + \beta = 1$，$\alpha,\beta \geq 0$）とする。
+で表す。$\Psi_n^L(x)$（resp.\ $\Psi_n^R(x)$）は時刻 $n$ に
+左向き（resp.\ 右向き）で位置 $x$ にある確率である。
+正規化条件 $\displaystyle\sum_{x \in \mathbb{Z}} \bigl(\Psi_n^L(x) + \Psi_n^R(x)\bigr) = 1$
+を仮定し，時刻 $n$ に位置 $x$ にいる確率を
+\[
+  P(\tilde{S}_n = x) = \Psi_n^L(x) + \Psi_n^R(x) = \|\Psi_n(x)\|_1
+\]
+と定義する。
 \end{definition}
 
-時刻発展方程式は
+行列 $A$ を左移動成分と右移動成分に分解する：
+\[
+  P = \begin{pmatrix} a & b \\ 0 & 0 \end{pmatrix}, \qquad
+  Q = \begin{pmatrix} 0 & 0 \\ c & d \end{pmatrix}, \qquad
+  A = P + Q.
+\]
+$P$ は左向きへの寄与（位置 $x+1$ から $x$ への左向き移動），
+$Q$ は右向きへの寄与（位置 $x-1$ から $x$ への右向き移動）を担う。
+確率ベクトルの時間発展は
 \begin{equation}
-  \Psi_{n+1}(x) = P_R\,\Psi_n(x-1) + P_L\,\Psi_n(x+1)
+  \Psi_{n+1}(x) = P\,\Psi_n(x+1) + Q\,\Psi_n(x-1)
   \label{eq:crw_evolution}
 \end{equation}
-で与えられる。$P_R$ は位置 $x-1$ から右向きに $x$ へ移動した寄与（$\Psi^+$ 成分を更新），
-$P_L$ は位置 $x+1$ から左向きに $x$ へ移動した寄与（$\Psi^-$ 成分を更新）に対応する。
+で与えられる。
+
+初期確率ベクトルを
+$\varphi = (\alpha,\,\beta)^\top$，$\alpha + \beta = 1$，$\alpha,\beta \geq 0$
+とし，初期状態は原点 $\Psi_0(0) = \varphi$ とする。
+$\alpha = 0$（resp.\ $\beta = 0$）は右向き（resp.\ 左向き）から出発することに対応する。
 
 %---------------------------------------------------------
 \subsection{相関付きランダムウォークの確率分布}
 %---------------------------------------------------------
 
-時刻 $n$ に位置 $x$ にいる確率は，左向き・右向きの寄与の和として
-\begin{equation}
-  P(\tilde{S}_n = x) = \Psi_n^{-}(x) + \Psi_n^{+}(x)
-  \label{eq:crw_prob}
-\end{equation}
-で与えられる。
+\subsubsection*{パス和 $\Xi_n(l,m)$}
 
-\begin{proposition}[確率の正規化]
-任意の $n \geq 0$ に対して
-$\displaystyle\sum_{x \in \mathbb{Z}} P(\tilde{S}_n = x) = 1$。
+$n$ ステップで左に $l$ 回，右に $m$ 回（$l + m = n$）移動するとき，
+$l$ 個の $P$（左移動行列）と $m$ 個の $Q$（右移動行列）の積の全順序づけの和を
+$\Xi_n(l, m)$ と定義する。
+位置と試行回数の関係は $x = m - l$，$l = \dfrac{n-x}{2}$，$m = \dfrac{n+x}{2}$ である。
+
+$n = 2$ の場合：
+\begin{align*}
+  \Xi_2(2,0) &= P^2, \quad \Xi_2(0,2) = Q^2, \\
+  \Xi_2(1,1) &= QP + PQ.
+\end{align*}
+
+$n = 3$ の場合：
+\begin{align*}
+  \Xi_3(3,0) &= P^3, \quad \Xi_3(0,3) = Q^3, \\
+  \Xi_3(2,1) &= QP^2 + PQP + P^2Q, \\
+  \Xi_3(1,2) &= PQ^2 + QPQ + Q^2P.
+\end{align*}
+
+\begin{remark}
+通常のランダムウォークでは $\Xi_2(1,1)$ に対応する量はスカラー $2pq$ であるが，
+相関付きランダムウォークでは $P$ と $Q$ が行列で\textbf{非可換}であるため，
+$\Xi_2(1,1) = QP + PQ \neq 2PQ$ が一般に成り立つ。
+\end{remark}
+
+\begin{proposition}[確率測度の表式]
+時刻 $n$ に位置 $x$ にいる確率は
+\begin{equation}
+  P(\tilde{S}_n = x) = \|\Xi_n(l,m)\,\varphi\|_1,
+  \qquad l = \tfrac{n-x}{2},\; m = \tfrac{n+x}{2}
+  \label{eq:crw_Xi}
+\end{equation}
+で与えられ，$\displaystyle\sum_{x} P(\tilde{S}_n = x) = 1$ を満たす。
 \end{proposition}
 
-\subsubsection*{$n = 1, 2, 3$ の具体例}
+\subsubsection*{時間発展対称な場合の具体計算}
 
-以下では初期状態を $\Psi_0(0) = (\alpha,\,\beta)^\top$（$\alpha + \beta = 1$）とする。
+$p = q$（時間発展対称）のとき，$a = d = p$，$b = c = 1 - p$ となる。
+$q = 1 - p$ と置けば $p + q = 1$ であり，
+\[
+  A = \begin{pmatrix} p & q \\ q & p \end{pmatrix}, \quad
+  P = \begin{pmatrix} p & q \\ 0 & 0 \end{pmatrix}, \quad
+  Q = \begin{pmatrix} 0 & 0 \\ q & p \end{pmatrix}.
+\]
 
 \medskip
-\noindent\textbf{$n=1$ のとき：}
+\noindent\textbf{$n=1$ のとき}（行列計算の詳細）：
 \begin{align*}
-  P(\tilde{S}_1 = +1) &= a\beta + b\alpha, \\
-  P(\tilde{S}_1 = -1) &= a\alpha + b\beta.
+  \widetilde{P}(\tilde{S}_1 = -1)
+    &= P\varphi
+     = \begin{pmatrix} p & q \\ 0 & 0 \end{pmatrix}
+       \begin{pmatrix} \alpha \\ \beta \end{pmatrix}
+     = \begin{pmatrix} p\alpha + q\beta \\ 0 \end{pmatrix},\\[4pt]
+  \widetilde{P}(\tilde{S}_1 = +1)
+    &= Q\varphi
+     = \begin{pmatrix} 0 & 0 \\ q & p \end{pmatrix}
+       \begin{pmatrix} \alpha \\ \beta \end{pmatrix}
+     = \begin{pmatrix} 0 \\ q\alpha + p\beta \end{pmatrix}.
 \end{align*}
+よって
+\[
+  P(\tilde{S}_1 = -1) = p\alpha + q\beta, \qquad P(\tilde{S}_1 = +1) = q\alpha + p\beta.
+\]
+和は $(p + q)(\alpha + \beta) = 1$ となり，確率測度であることが確認できる。
 
 \medskip
 \noindent\textbf{$n=2$ のとき：}
 \begin{align*}
-  P(\tilde{S}_2 = +2) &= a\,(a\beta + b\alpha), \\
-  P(\tilde{S}_2 =  0) &= b\,(a\beta + b\alpha) + b\,(a\alpha + b\beta) = b, \\
-  P(\tilde{S}_2 = -2) &= a\,(a\alpha + b\beta).
+  P(\tilde{S}_2 = -2) &= p\,(p\alpha + q\beta), \\
+  P(\tilde{S}_2 =  0) &= q, \\
+  P(\tilde{S}_2 = +2) &= p\,(q\alpha + p\beta).
 \end{align*}
-$P(\tilde{S}_2 = 0) = b$ は $\alpha + \beta = 1$ から直接導かれる。
+$P(\tilde{S}_2 = 0) = q$ は $\alpha + \beta = 1$，$p + q = 1$ から導かれる。
 
 \medskip
 \noindent\textbf{$n=3$ のとき：}
 \begin{align*}
-  P(\tilde{S}_3 = +3) &= a^2\,(a\beta + b\alpha), \\
-  P(\tilde{S}_3 = +1) &= b^2\,(a\beta + b\alpha) + ab, \\
-  P(\tilde{S}_3 = -1) &= b^2\,(a\alpha + b\beta) + ab, \\
-  P(\tilde{S}_3 = -3) &= a^2\,(a\alpha + b\beta).
+  P(\tilde{S}_3 = -3) &= p^2\,(p\alpha + q\beta), \\
+  P(\tilde{S}_3 = -1) &= q^2\,(p\alpha + q\beta) + pq, \\
+  P(\tilde{S}_3 = +1) &= q^2\,(q\alpha + p\beta) + pq, \\
+  P(\tilde{S}_3 = +3) &= p^2\,(q\alpha + p\beta).
 \end{align*}
+
+\begin{remark}[偶奇性]
+$n$ ステップ後の位置 $x$ は $n$ と同じ偶奇を持つ（$x \equiv n \pmod{2}$）。
+これは通常のランダムウォークと同様である。
+\end{remark}
 
 \subsubsection*{平均}
 
-\begin{proposition}[1次モーメント]
-$\Psi_0(0) = (\alpha,\,\beta)^\top$ とするとき，
+\begin{proposition}[1次モーメント（時間発展対称な場合）]
+$\Psi_0(0) = \varphi = (\alpha,\,\beta)^\top$，$p + q = 1$ とするとき，
 \begin{equation}
   \mathbb{E}[\tilde{S}_n]
-  = (\beta - \alpha)\sum_{k=1}^{n}(a-b)^k
-  = \frac{(a-b)(\beta-\alpha)\bigl[1-(a-b)^n\bigr]}{2b}
-  \qquad (a \neq b). \label{eq:crw_mean}
+  = (\beta - \alpha)\sum_{k=1}^{n}(p - q)^k
+  = \frac{(p-q)(\beta-\alpha)\bigl[1-(p-q)^n\bigr]}{2q}
+  \qquad (p \neq q). \label{eq:crw_mean}
 \end{equation}
-$a = b = 1/2$ のとき $\mathbb{E}[\tilde{S}_n] = 0$，$\mathrm{Var}(\tilde{S}_n) = n$。
+$p = q = 1/2$ のとき $\mathbb{E}[\tilde{S}_n] = 0$，$\mathrm{Var}(\tilde{S}_n) = n$。
 \end{proposition}
 
 \begin{remark}
-$|a-b| < 1$ であるから，$n \to \infty$ で $(a-b)^n \to 0$。
-よって $\mathbb{E}[\tilde{S}_n]$ は有限値 $\dfrac{(a-b)(\beta-\alpha)}{2b}$ に収束する（$a \neq b$）。
-分散は $n$ に比例して増大し（拡散的挙動），$a = 1/2$ のときは
-通常のランダムウォークと同様に $\mathrm{Var}(\tilde{S}_n) = n$ が成り立つ。
+$|p - q| < 1$ であるから，$n \to \infty$ で $(p-q)^n \to 0$。
+よって $\mathbb{E}[\tilde{S}_n]$ は有限値 $\dfrac{(p-q)(\beta-\alpha)}{2q}$
+に収束する（$p \neq q$）。
+これは通常のランダムウォークが $\mathbb{E}[S_n] \propto n$ で発散するのとは対照的である。
 \end{remark}
 
 \subsubsection*{ランダムウォークとの比較}
@@ -430,11 +516,11 @@ $|a-b| < 1$ であるから，$n \to \infty$ で $(a-b)^n \to 0$。
 \midrule
 ステップの依存性   & 各ステップ独立       & 直前のステップに依存 \\
 内部自由度         & 1（位置のみ）        & 2（位置 $+$ 向き） \\
-推移の表現         & スカラー確率 $p$, $q$ & $2\times2$ 行列 $A = P_R + P_L$ \\[2pt]
-$\mathbb{E}[S_n]$（$\alpha=0,\beta=1$）
-  & $(q-p)\,n$
-  & $\dfrac{(a-b)[1-(a-b)^n]}{2b}$（$a \neq b$）\\[6pt]
-$\mathrm{Var}(S_n)$（$p=q=1/2$） & $n$ & $n$ \\
+推移の表現         & スカラー確率         & $2\times2$ 行列 $A = P + Q$ \\[2pt]
+$\mathbb{E}[S_n]$（$\beta=1,\alpha=0$）
+  & $(q-p)\,n$（§1 の記法）
+  & $\dfrac{(p-q)[1-(p-q)^n]}{2q}$（$p \neq q$）\\[6pt]
+$\mathrm{Var}(\tilde{S}_n)$（対称の場合） & $n$ & $n$ \\
 極限分布           & 正規分布             & 正規分布 \\
 \bottomrule
 \end{tabular}
