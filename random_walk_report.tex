@@ -1,0 +1,324 @@
+%% random_walk_report.tex
+%% Overleaf 対応（uplatex / lualatex）
+\documentclass[uplatex,dvipdfmx,a4paper,12pt]{bxjsarticle}
+
+%% ---------- パッケージ ----------
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+%% ---------- theorem 環境 ----------
+\theoremstyle{definition}
+\newtheorem{definition}{定義}[section]
+\newtheorem{proposition}[definition]{命題}
+\newtheorem{example}[definition]{例}
+\newtheorem{remark}[definition]{注意}
+
+%% ---------- 表紙情報 ----------
+\title{ランダムウォーク・相関付きランダムウォーク\\[4pt]
+       \large わかりやすい解説}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{ランダムウォークについて}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{ランダムウォークの定義}
+
+\paragraph{直感的な説明（酔歩）}
+ランダムウォーク（random walk）とは，「酔っ払いの歩き方」に例えられる確率的な移動モデルである．
+一次元の整数格子 $\mathbb{Z}$ 上を歩く粒子（ウォーカー）は，各時刻ごとに
+コインを投げて右か左かを決め，その方向へ 1 歩進む．
+
+\begin{definition}[ランダムウォーク]
+確率空間 $(\Omega,\mathcal{F},P)$ 上の独立同分布な確率変数列
+$T_1, T_2, \ldots$ を
+\[
+  P(T_k = +1) = p, \quad P(T_k = -1) = q = 1-p
+  \quad (0 < p < 1)
+\]
+によって定める．このとき，$n$ 時刻後の位置
+\[
+  S_n = T_1 + T_2 + \cdots + T_n \quad (S_0 = 0)
+\]
+を（一次元単純）\textbf{ランダムウォーク}という．$p$ を右進確率，$q$ を左進確率と呼ぶ．
+\end{definition}
+
+\begin{remark}
+$p = q = 1/2$ の場合を\textbf{対称ランダムウォーク}，$p \neq q$ の場合を
+\textbf{非対称ランダムウォーク}という．
+\end{remark}
+
+%---------------------------------------------------------
+\subsection{ランダムウォークの確率分布}
+%---------------------------------------------------------
+
+\subsubsection*{確率分布の公式}
+
+\begin{proposition}[確率分布]
+$n$ 回移動後に位置 $x$ にいる確率は，
+$(n+x)/2$ が非負整数のときに限り正の値をとり，
+\[
+  P(S_n = x)
+  = \binom{n}{\dfrac{n+x}{2}}
+    p^{\,(n+x)/2}\,
+    q^{\,(n-x)/2}
+\]
+が成り立つ．それ以外のとき $P(S_n = x)=0$．
+\end{proposition}
+
+\begin{proof}[概略]
+$n$ 回の移動のうち右へ進む回数を $r$，左へ進む回数を $l$ とすれば
+$r+l=n$，$r-l=x$ より $r=(n+x)/2$，$l=(n-x)/2$．
+$r$ 回の右移動を選ぶ組み合わせが $\binom{n}{r}$ 通りあるから，上式を得る．
+\end{proof}
+
+\subsubsection*{具体例：$n = 1, 2, 3$}
+
+\begin{example}[$n=1$]
+\[
+  P(S_1 = +1) = p, \quad P(S_1 = -1) = q.
+\]
+\end{example}
+
+\begin{example}[$n=2$]
+\begin{align*}
+  P(S_2 = +2) &= p^2,\\
+  P(S_2 =  0) &= 2pq,\\
+  P(S_2 = -2) &= q^2.
+\end{align*}
+\end{example}
+
+\begin{example}[$n=3$]
+\begin{align*}
+  P(S_3 = +3) &= p^3,\\
+  P(S_3 = +1) &= 3p^2 q,\\
+  P(S_3 = -1) &= 3p q^2,\\
+  P(S_3 = -3) &= q^3.
+\end{align*}
+\end{example}
+
+\subsubsection*{確率表（パスカルの三角形との対応）}
+
+下表は $p=1/2$ の対称ランダムウォークにおける確率分布の係数（分子）を
+$2^n$ を分母として整理したものである．
+係数の並びがパスカルの三角形と一致することが見て取れる．
+
+\begin{table}[h]
+\centering
+\caption{$P(S_n = x)$ の係数一覧（分母 $2^n$，$p=q=1/2$）}
+\label{tab:pascal}
+\begin{tabular}{@{}c *{7}{c}@{}}
+\toprule
+$n \backslash x$ & $-3$ & $-2$ & $-1$ & $0$ & $1$ & $2$ & $3$ \\
+\midrule
+0 & & & & 1 & & & \\
+1 & & & 1 & & 1 & & \\
+2 & & 1 & & 2 & & 1 & \\
+3 & 1 & & 3 & & 3 & & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{平均と分散}
+
+\begin{proposition}[1次・2次モーメント]\label{prop:moment_rw}
+$S_0 = 0$ とするとき，
+\begin{align}
+  \mathbb{E}[S_n]   &= (p - q)\,n = (2p-1)\,n, \label{eq:mean_rw}\\
+  \mathrm{Var}(S_n) &= 4pq\,n. \label{eq:var_rw}
+\end{align}
+\end{proposition}
+
+\begin{proof}[概略]
+各 $T_k$ が独立であるから，期待値と分散の線型性より
+$\mathbb{E}[S_n] = n\,\mathbb{E}[T_1] = n(p - q)$，
+$\mathrm{Var}(S_n) = n\,\mathrm{Var}(T_1) = n(1-(p-q)^2)=4pqn$．
+\end{proof}
+
+\begin{remark}
+$p = 1/2$ のとき $\mathbb{E}[S_n]=0$，$\mathrm{Var}(S_n)=n$．
+すなわち，ウォーカーの典型的な広がりは $\sqrt{n}$ のオーダーである（拡散的挙動）．
+\end{remark}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{相関付きランダムウォークについて}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{相関付きランダムウォークの定義}
+
+\paragraph{前ステップへの依存}
+通常のランダムウォークでは各ステップが独立であるが，
+\textbf{相関付きランダムウォーク}（correlated random walk）では
+直前の移動方向が次のステップに影響する．
+
+\begin{definition}[相関付きランダムウォーク]
+確率パラメータ $p \in (0,1)$，$q = 1-p$ を用いて，
+次の遷移確率を持つ確率過程 $(\tilde{S}_n)_{n \geq 1}$ を考える．
+\[
+\begin{array}{ll}
+  P(\text{右} \to \text{右}) = p, & P(\text{右} \to \text{左}) = q,\\
+  P(\text{左} \to \text{右}) = q, & P(\text{左} \to \text{左}) = p.
+\end{array}
+\]
+すなわち，\textbf{直前と同じ方向}に進む確率が $p$，
+\textbf{逆方向}に進む確率が $q$ である．
+\end{definition}
+
+\begin{remark}
+$p > 1/2$ のとき同方向への持続性が強く（持続的ウォーク），
+$p < 1/2$ のとき反転しやすくなる（反持続的ウォーク）．
+$p = 1/2$ のとき通常のランダムウォークに一致する．
+\end{remark}
+
+\subsubsection*{行列表現}
+
+内部状態（向き）を $\{+1\,(右), -1\,(左)\}$ とする 2 成分ベクトルで記述すると，
+相関付きランダムウォークは自然に $2\times 2$ 行列で表現できる．
+
+\begin{definition}[推移行列]
+右移動行列 $P$，左移動行列 $Q$ を
+\[
+  P = \begin{pmatrix} p & q \\ 0 & 0 \end{pmatrix},
+  \qquad
+  Q = \begin{pmatrix} 0 & 0 \\ q & p \end{pmatrix}
+\]
+と定め，\textbf{推移行列}を
+\[
+  A = P + Q = \begin{pmatrix} p & q \\ q & p \end{pmatrix}
+\]
+とする（対称な場合 $a=d=p$，$b=c=q$）．
+\end{definition}
+
+\begin{definition}[確率ベクトル]
+時刻 $n$ に位置 $x$ にいる確率振幅を
+\[
+  \Psi_n(x) = \begin{pmatrix} \Psi_n^{-}(x) \\ \Psi_n^{+}(x) \end{pmatrix}
+\]
+で表す．ここで $\Psi_n^{-}(x)$ は左向きに位置 $x$ にいる確率，
+$\Psi_n^{+}(x)$ は右向きに位置 $x$ にいる確率である．
+
+初期状態は $\Psi_0(0) = \begin{pmatrix} \alpha \\ \beta \end{pmatrix}$（$\alpha + \beta = 1$，
+$\alpha,\beta \geq 0$）とする．
+\end{definition}
+
+時刻発展方程式は
+\begin{equation}
+  \Psi_{n+1}(x)
+  = P\,\Psi_n(x-1) + Q\,\Psi_n(x+1)
+  \label{eq:crw_evolution}
+\end{equation}
+で与えられる．
+
+%---------------------------------------------------------
+\subsection{相関付きランダムウォークの確率分布}
+%---------------------------------------------------------
+
+\subsubsection*{確率測度}
+
+位置 $x$ に到達する全確率は左向き・右向きの寄与の和である：
+\begin{equation}
+  P(\tilde{S}_n = x)
+  = \Psi_n^{-}(x) + \Psi_n^{+}(x).
+  \label{eq:crw_prob}
+\end{equation}
+
+\begin{proposition}[確率の正規化]
+任意の $n \geq 0$ に対して
+\[
+  \sum_{x \in \mathbb{Z}} P(\tilde{S}_n = x) = 1.
+\]
+\end{proposition}
+
+\subsubsection*{具体例：$n = 1, 2, 3$（対称な場合）}
+
+以下では $a=d=p$，$b=c=q$，初期状態
+$\Psi_0(0)=(\alpha,\beta)^\top$ とする．
+
+\begin{example}[$n=1$]
+\begin{align*}
+  P(\tilde{S}_1 = +1) &= p\beta + q\alpha,\\
+  P(\tilde{S}_1 = -1) &= q\beta + p\alpha.
+\end{align*}
+\end{example}
+
+\begin{example}[$n=2$]
+\begin{align*}
+  P(\tilde{S}_2 = +2) &= p(p\beta + q\alpha),\\
+  P(\tilde{S}_2 =  0) &= q(q\beta + p\alpha) + q(p\beta + q\alpha),\\
+  P(\tilde{S}_2 = -2) &= p(q\beta + p\alpha).
+\end{align*}
+\end{example}
+
+\begin{example}[$n=3$]
+\begin{align*}
+  P(\tilde{S}_3 = +3) &= p^2(p\beta + q\alpha),\\
+  P(\tilde{S}_3 = +1) &= pq(p\beta+q\alpha) + (p^2+q^2)(q\beta+p\alpha),\\
+  P(\tilde{S}_3 = -1) &= (p^2+q^2)(p\beta+q\alpha) + pq(q\beta+p\alpha),\\
+  P(\tilde{S}_3 = -3) &= p^2(q\beta + p\alpha).
+\end{align*}
+\end{example}
+
+\subsubsection*{1次・2次モーメント}
+
+\begin{proposition}[モーメント]
+対称な相関付きランダムウォーク（$a=d=p$，$b=c=q$）において，
+\begin{align}
+  \mathbb{E}[\tilde{S}_1]
+    &= (p-q)(\beta - \alpha),
+    \label{eq:crw_m1}\\
+  \mathbb{E}[\tilde{S}_1^2]
+    &= 1.
+    \label{eq:crw_m2step1}
+\end{align}
+一般の $n$ に対しては
+\begin{align}
+  \mathbb{E}[\tilde{S}_n]
+    &= (p-q)^n(\beta - \alpha),
+    \label{eq:crw_mn}\\
+  \mathrm{Var}(\tilde{S}_n)
+    &= \frac{2pq}{\,(p-q)^2\,}
+       \left[1 - (p-q)^{2n}\right]
+       + n - \left(\mathbb{E}[\tilde{S}_n]\right)^2
+    \label{eq:crw_var}
+\end{align}
+が成り立つ（ただし $p \neq q$）．
+\end{proposition}
+
+\begin{remark}
+$n \to \infty$ かつ $p \neq q$ のとき，
+$\mathbb{E}[\tilde{S}_n] \approx (p-q)^n(\beta-\alpha) \to 0$，
+分散は $n$ に比例して増大する（拡散的挙動）．
+$p = q = 1/2$ のときは通常のランダムウォークと同じ結果 $\mathrm{Var}(\tilde{S}_n)=n$ が得られる．
+\end{remark}
+
+\subsubsection*{確率分布の比較表}
+
+\begin{table}[h]
+\centering
+\caption{ランダムウォークと相関付きランダムウォークの主な比較}
+\label{tab:compare}
+\begin{tabular}{@{}lll@{}}
+\toprule
+性質 & ランダムウォーク & 相関付きランダムウォーク \\
+\midrule
+ステップの独立性 & 独立 & 1ステップ前に依存 \\
+内部自由度 & 1 & 2（向き $\pm 1$）\\
+推移の表現 & スカラー確率 & $2\times 2$ 行列 $A = P+Q$ \\
+$\mathbb{E}[S_n]$ & $(2p-1)n$ & $(p-q)^n(\beta-\alpha)$ \\
+$\mathrm{Var}(S_n)$ ($p=q=1/2$) & $n$ & $n$ \\
+極限分布 & 正規分布 & 正規分布 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
