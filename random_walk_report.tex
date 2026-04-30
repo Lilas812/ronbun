@@ -465,9 +465,105 @@ $Q = \bigl(\begin{smallmatrix}0&0\\c&d\end{smallmatrix}\bigr)$ を用いる。
 （このとき $c = b$，$d = a$ が成り立つ。）
 
 \begin{remark}[偶奇性]
-$n$ ステップ後の位置 $x$ は $n$ と同じ偶奇を持つ（$x \equiv n \pmod{2}$）。
-これは通常のランダムウォークと同様である。
+$n$ ステップ後の位置 $x$ は，左に $l$ 回・右に $m$ 回移動した結果
+$x = m - l$，$l + m = n$ で決まるため，$x \equiv n \pmod{2}$ が常に成り立つ。
+この偶奇性は遷移確率 $a, b, c, d$ の値によらず，相関付きランダムウォークでも通常のランダムウォークと同様に成立する。
+
+具体的には，時間発展対称（$a = d$，$b = c$）な CRW において，
+時刻 $n$ が偶数のときは取りえる場所も偶数，奇数の時刻では場所も奇数に限られる。
+図\,\ref{fig:crw_barchart} は $a = d = 3/4$，$b = c = 1/4$，
+初期状態 $\varphi = (0,\,1)^\top$（右向き出発）の場合の確率分布であり，
+$n = 1, 3$（奇数時刻）では奇数の位置のみ，$n = 2, 4$（偶数時刻）では偶数の位置のみに
+確率が集中していることが見てとれる。
 \end{remark}
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.23\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=3.8cm, height=3.5cm,
+  ybar, bar width=0.55cm,
+  ymin=0, ymax=1,
+  xtick={-1,1}, xticklabels={$-1$,$1$},
+  ytick={0,0.25,0.5,0.75,1},
+  yticklabels={$0$,$\frac{1}{4}$,$\frac{1}{2}$,$\frac{3}{4}$,},
+  xlabel={\small 場所},
+  title={\small 時刻 $n=1$},
+  tick label style={font=\small},
+]
+\addplot[fill=black!70] coordinates {(-1,0.25)(1,0.75)};
+\end{axis}
+\end{tikzpicture}
+\caption*{(a)}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.23\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=3.8cm, height=3.5cm,
+  ybar, bar width=0.45cm,
+  ymin=0, ymax=1,
+  xtick={-2,0,2}, xticklabels={$-2$,$0$,$2$},
+  ytick={0,0.25,0.5,0.75,1},
+  yticklabels={$0$,,$\frac{1}{4}$,,$\frac{9}{16}$},
+  xlabel={\small 場所},
+  title={\small 時刻 $n=2$},
+  tick label style={font=\small},
+]
+\addplot[fill=black!70] coordinates {(-2,0.1875)(0,0.25)(2,0.5625)};
+\end{axis}
+\end{tikzpicture}
+\caption*{(b)}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.23\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=3.8cm, height=3.5cm,
+  ybar, bar width=0.35cm,
+  ymin=0, ymax=0.5,
+  xtick={-3,-1,1,3}, xticklabels={$-3$,$-1$,$1$,$3$},
+  ytick={0,0.25,0.5},
+  yticklabels={$0$,$\frac{1}{4}$,},
+  xlabel={\small 場所},
+  title={\small 時刻 $n=3$},
+  tick label style={font=\small},
+]
+\addplot[fill=black!70] coordinates {
+  (-3,0.140625)(-1,0.203125)(1,0.234375)(3,0.421875)};
+\end{axis}
+\end{tikzpicture}
+\caption*{(c)}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.23\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=3.8cm, height=3.5cm,
+  ybar, bar width=0.28cm,
+  ymin=0, ymax=0.4,
+  xtick={-4,-2,0,2,4}, xticklabels={$-4$,$-2$,$0$,$2$,$4$},
+  ytick={0,0.2,0.4},
+  yticklabels={$0$,$\frac{1}{5}$,},
+  xlabel={\small 場所},
+  title={\small 時刻 $n=4$},
+  tick label style={font=\small},
+  x tick label style={rotate=45, anchor=east, font=\small},
+]
+\addplot[fill=black!70] coordinates {
+  (-4,0.10547)(-2,0.16406)(0,0.20313)(2,0.21094)(4,0.31641)};
+\end{axis}
+\end{tikzpicture}
+\caption*{(d)}
+\end{subfigure}
+\caption{時間発展対称 CRW（$a=d=3/4$，$b=c=1/4$，右向き出発）における時刻 $n=1,2,3,4$ の確率測度}
+\label{fig:crw_barchart}
+\end{figure}
 
 \subsubsection*{平均}
 
