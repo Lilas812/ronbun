@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+
+# LaTeX 中間生成物
+*.aux
+*.log
+*.dvi
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.out
+*.toc
+*.bbl
+*.blg
+
+# 図の確認用一時ファイル
+_v_*.png
+_chk_*.png
+_check_*.png
