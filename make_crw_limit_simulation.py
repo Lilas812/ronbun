@@ -45,7 +45,7 @@ def crw_distribution(a, n, phi=(0.5, 0.5)):
 
 
 def make_figure():
-    n = 1000
+    n = 100
     cases = [
         (2.0 / 3.0, "persistent: $a=2/3,\\ \\sigma^2=a/(1-a)=2$"),
         (1.0 / 3.0, "anti-persistent: $a=1/3,\\ \\sigma^2=a/(1-a)=1/2$"),
@@ -69,8 +69,8 @@ def make_figure():
         yy = np.linspace(-4 * np.sqrt(sigma2), 4 * np.sqrt(sigma2), 800)
         normal = np.exp(-yy ** 2 / (2 * sigma2)) / np.sqrt(2 * np.pi * sigma2)
 
-        ax.plot(y, density, color="#1f77b4", lw=1.0,
-                label="$n=1000$ exact distribution")
+        ax.plot(y, density, color="#1f77b4", lw=1.2, marker="o", ms=2.5,
+                label="$n=100$ exact distribution")
         ax.plot(yy, normal, color="#d62728", lw=1.8, ls="--",
                 label="limit $N(0,\\,a/(1-a))$")
         ax.set_title(title)
