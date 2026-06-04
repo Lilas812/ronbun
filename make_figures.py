@@ -234,6 +234,37 @@ def fig_linechart_renko():
     plt.close(fig)
 
 
+# ---------- 9. 有限ステップ -> 極限 への収束過程 ----------
+def fig_crw_convergence():
+    cases = [(2.0 / 3.0, "persistent: $a=2/3$ (limit $N(0,2)$)"),
+             (1.0 / 3.0, "anti-persistent: $a=1/3$ (limit $N(0,1/2)$)")]
+    ns = [2, 5, 20, 100]
+    colors = plt.cm.viridis(np.linspace(0.15, 0.8, len(ns)))
+    fig, axes = plt.subplots(1, 2, figsize=(13, 4.8))
+    for ax, (a, title) in zip(axes, cases):
+        var = a / (1 - a)
+        for n, c in zip(ns, colors):
+            xs, probs = crw_distribution(a, n)
+            m = probs > 1e-12
+            y = xs[m] / sqrt(n)
+            dy = 2 / sqrt(n)
+            ax.plot(y, probs[m] / dy, marker="o", ms=3, lw=1.0, color=c,
+                    label="$n=%d$" % n)
+        lim = 4 * sqrt(var)
+        xx = np.linspace(-lim, lim, 800)
+        ax.plot(xx, normal_pdf(xx, var), "r--", lw=2.2,
+                label="limit $N(0,a/(1-a))$")
+        ax.set_title(title)
+        ax.set_xlabel("$S_n/\\sqrt{n}$")
+        ax.set_ylabel("density")
+        ax.set_xlim(-lim, lim)
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=9)
+    fig.tight_layout()
+    fig.savefig("crw_convergence.png", dpi=150)
+    plt.close(fig)
+
+
 def main():
     fig_rw_barchart()
     fig_crw_barchart()
@@ -245,6 +276,7 @@ def main():
     fig_rw_transition()
     fig_crw_transition()
     fig_linechart_renko()
+    fig_crw_convergence()
     print("all figures generated")
 
 
