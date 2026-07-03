@@ -945,6 +945,129 @@ $b_i=-1$ は価格が下方向へ $B$ だけ動いたことを表す。
 \end{figure}
 \newpage
 \section{実験結果}
+
+本章では，前章までに構成した相関付きランダムウォークに基づく時系列モデルを，
+実際の XAUUSD の平均練行足系列に適用し，その予測性能を検証する。
+本章の構成は次の通りである。
+まず，評価関数\eqref{eq:model_Vn} をそのまま用い，
+パラメータ推定に時刻 $0$ から現在時刻 $n$ までの\textbf{全期間}のデータを用いた場合の結果を示す
+（\ref{subsec:exp_full}節）。
+次に，全期間を用いる方法で生じた問題点を整理する（\ref{subsec:exp_problem}節）。
+最後に，その問題点を踏まえ，パラメータ推定に用いる期間を直近の一定区間に限定する
+\textbf{参照期間}を導入した改良版の結果を示し，全期間版との比較を行う（\ref{subsec:exp_window}節）。
+
+\subsection{実験設定}
+\label{subsec:exp_setup}
+
+% TODO: 実データの設定を確定して記述する
+% - 使用データ：XAUUSD の価格系列（対象期間・時間足・データ数 N）
+% - 平均練行足の値幅 B の値と，その決め方
+% - パラメータ探索範囲と刻み幅（(p,q,\alpha)\in[0,1]^3 の格子探索）
+% - 評価指標（例：予測方向の的中率，二乗誤差 RMSE など）
+本節では，実験に用いたデータおよびパラメータ設定を述べる。
+解析対象は XAUUSD の価格系列であり，前章で述べた手順に従って
+値幅 $B$ の平均練行足へ変換し，ボックス単位の整数値時系列 $x_0,x_1,\ldots,x_N$ を構成した。
+パラメータ $(p,q,\alpha)$ は $[0,1]^3$ 上の格子探索によって評価関数を最小化するものを求めた。
+% ↑ 具体的な数値（対象期間，B，N，刻み幅，評価指標）を後で埋める
+
+\subsection{全期間を参照期間とした場合の結果}
+\label{subsec:exp_full}
+
+はじめに，式\eqref{eq:model_Vn} で定義した評価関数
+\[
+  V_n(p,q,\alpha)=\sum_{t=0}^{n}\sum_{x=-t}^{t}(x-x_t)^2\,\mu_t(x;p,q,\alpha)
+\]
+をそのまま用いる。
+これは，各時刻 $n$ において時刻 $0$ から $n$ までの全観測データ $D_n$ を用いて
+パラメータ $(p_n^\ast,q_n^\ast,\alpha_n^\ast)$ を推定し，
+式\eqref{eq:model_prediction} により次時刻の予測値 $x_{n+1}^\ast$ を求める方法である。
+
+% TODO: 全期間版の結果図を生成して挿入する
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=\textwidth]{exp_full_prediction}
+%   \caption{全期間を参照期間とした場合の予測列 $x_n^\ast$ と実測値 $x_n$ の比較}
+%   \label{fig:exp_full_prediction}
+% \end{figure}
+得られた予測列 $x_1^\ast,\ldots,x_N^\ast$ と実測値 $x_1,\ldots,x_N$ を比較した結果を示す。
+% ↑ 図・数値を挿入し，結果の傾向を記述する
+
+\subsection{全期間を用いる場合の問題点}
+\label{subsec:exp_problem}
+
+全期間のデータを用いてパラメータを推定した場合，以下の問題点が確認された。
+
+\begin{itemize}
+  \item \textbf{直近の値動きへの追随性の低下：}
+        評価関数 $V_n$ は時刻 $0$ から $n$ までのすべての誤差を等しく加算するため，
+        $n$ が大きくなるにつれて過去の長い期間の寄与が支配的となる。
+        その結果，推定パラメータが早い段階で安定してしまい，
+        直近の値動きの傾向の変化（持続性・反転傾向の切り替わり）に追随しにくくなる。
+  \item \textbf{予測の鈍化：}
+        パラメータが $p\approx q$ 付近に収束すると，予測が実質的に前値保持
+        $x_{n+1}^\ast\approx x_n$ に近づき，値動きの向きを捉えられなくなる。
+  \item \textbf{計算量の増大：}
+        全期間を用いると，各時刻で時刻 $t=0,\ldots,n$ の厳密分布 $\mu_t$（$2t+1$ 個の状態）を
+        評価する必要があり，$n$ の増加に伴い計算量が増大する。
+\end{itemize}
+
+% TODO: 上記の問題点を，全期間版の結果図・数値（例：時刻ごとの推定パラメータの推移）で裏付ける
+
+\subsection{参照期間を限定した改良}
+\label{subsec:exp_window}
+
+前節の問題点を踏まえ，パラメータ推定に用いる期間を，
+現在時刻 $n$ から直近の $L$ ステップに限定する。
+この期間の長さ $L$ を\textbf{参照期間}とよぶ。
+
+参照期間の開始時刻を $m=\max(0,\,n-L)$ とし，
+この時刻を新たな原点とみなした相対系列
+\begin{equation}
+  y_j = x_{m+j}-x_m \qquad (j=0,1,\ldots,n-m)
+  \label{eq:window_relative}
+\end{equation}
+を定める。
+このとき，評価関数を参照期間内の相対系列に対して
+\begin{equation}
+  V_n^{(L)}(p,q,\alpha)
+  =\sum_{j=0}^{n-m}\sum_{x=-j}^{j}(x-y_j)^2\,\mu_j(x;p,q,\alpha)
+  \label{eq:window_Vn}
+\end{equation}
+と定義し，これを最小化するパラメータ $(p_n^\ast,q_n^\ast,\alpha_n^\ast)$ を推定する。
+次時刻の予測値は，開始時刻の値 $x_m$ を基準として
+\begin{equation}
+  x_{n+1}^\ast
+  = x_m + E\!\left(\tilde{S}_{\,n-m+1}\mid p_n^\ast,q_n^\ast,\alpha_n^\ast\right)
+  \label{eq:window_prediction}
+\end{equation}
+と定める。
+参照期間 $L$ を有限に固定することで，各時刻で用いるデータは常に直近の $L$ ステップに限られ，
+古い期間の寄与によってパラメータが固定化される問題を避けることができる。
+$L\to\infty$（あるいは $L\geq n$）の場合は，\ref{subsec:exp_full}節の全期間版に一致する。
+
+% TODO: 参照期間版の結果図を生成して挿入する
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=\textwidth]{exp_window_prediction}
+%   \caption{参照期間 $L$ を限定した場合の予測列 $x_n^\ast$ と実測値 $x_n$ の比較}
+%   \label{fig:exp_window_prediction}
+% \end{figure}
+参照期間 $L$ を変化させて予測性能を評価した結果を示す。
+% ↑ 図・数値を挿入し，全期間版（\ref{subsec:exp_full}節）と比較して改善点を記述する
+
+% TODO: 全期間版と参照期間版の予測性能を比較する表を挿入する
+% \begin{table}[H]
+%   \centering
+%   \caption{全期間版と参照期間版（各 $L$）の予測性能の比較}
+%   \label{tab:exp_compare}
+%   \begin{tabular}{lcc}
+%     \hline
+%     手法 & 的中率 & RMSE \\ \hline
+%     全期間 & & \\
+%     参照期間 $L=\cdots$ & & \\ \hline
+%   \end{tabular}
+% \end{table}
+
 \newpage
 \section{考察}
 
